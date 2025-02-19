@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 import os
 
 import discord
@@ -79,6 +80,43 @@ async def einsammeln(ctx):
         await ctx.send(f"Irgendwas ist schief gelaufen. Bitte bei Nicrey/Tim melden.")
         raise e
 
+@client.command()
+async def übersicht(ctx):
+    print("Starting with collection")
+    ideen_schmiede =1058662658905231370
+    werkbank = 1076990478697910373
+    channel =  ctx.channel
+    if ctx.author.id not in legit_users:
+        await ctx.send("Nicht genug Berechtigungen. Bitte bei Jonas/Michael/Tim melden")
+        return 
+    if channel.id != ideen_schmiede:
+        await ctx.send(f"Nur in Ideenschmiede nutzbar.")
+        return
+    
+    channel = client.get_channel(werkbank)
+    threads = channel.threads
+    message = "Offene Zufallstabellen: "
+    today = datetime.now(timezone.utc)
+    async for thread in channel.archived_threads():
+        threads.append(thread)
+    for thread in threads:
+        tags = [tag.name for tag in thread.applied_tags]
+        if "Geschlossen" in tags:
+            continue
+        days_ago = (today - thread.created_at).days
+        last_message = await thread.fetch_message(thread.last_message_id)
+        if last_message:
+            last_message_days = (today - last_message.created_at).days
+        else:
+            last_message_days = days_ago
+        message_count = thread.message_count
+        owner = thread.owner.display_name
+        message += f"\n{thread.jump_url} (Von {owner}, Offen seit {str(days_ago)} Tagen, Letzte Nachricht vor {str(last_message_days)} Tagen, {message_count} Nachrichten)"
+    
+    if not message:
+        message = "Keine offenen Tabellen"
+    await ctx.send(message)
+    
 @client.command()
 async def aufräumen(ctx):
     if ctx.author.id in legit_users:
