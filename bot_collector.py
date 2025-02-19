@@ -86,9 +86,6 @@ async def übersicht(ctx):
     ideen_schmiede =1058662658905231370
     werkbank = 1076990478697910373
     channel =  ctx.channel
-    if ctx.author.id not in legit_users:
-        await ctx.send("Nicht genug Berechtigungen. Bitte bei Jonas/Michael/Tim melden")
-        return 
     if channel.id != ideen_schmiede:
         await ctx.send(f"Nur in Ideenschmiede nutzbar.")
         return
